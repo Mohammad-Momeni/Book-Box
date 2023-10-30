@@ -134,40 +134,40 @@ def bfs_find(boardArray):
         new_start = x - 1, y
         if 'u' in actions:
             afterBoard = updateBoard(start, board, 'u')
-            if isGoal(afterBoard):
-                break
-            afterPath = new_path[2]
+            afterPath = copy.deepcopy(new_path[2])
             afterPath.append('u')
+            print(afterBoard)
+            if isGoal(afterBoard):
+                return afterPath, afterBoard
             open_list.append([new_start, afterBoard, afterPath])
         new_start = x + 1, y
         if 'd' in actions:
             afterBoard = updateBoard(start, board, 'd')
-            if isGoal(afterBoard):
-                break
-            afterPath = new_path[2]
+            afterPath = copy.deepcopy(new_path[2])
             afterPath.append('d')
+            if isGoal(afterBoard):
+                return afterPath, afterBoard
             open_list.append([new_start, afterBoard, afterPath])
         new_start = x, y - 1
         if 'l' in actions:
             afterBoard = updateBoard(start, board, 'l')
-            if isGoal(afterBoard):
-                break
-            afterPath = new_path[2]
+            afterPath = copy.deepcopy(new_path[2])
             afterPath.append('l')
+            if isGoal(afterBoard):
+                return afterPath, afterBoard
             open_list.append([new_start, afterBoard, afterPath])
         new_start = x, y + 1
         if 'r' in actions:
             afterBoard = updateBoard(start, board, 'r')
-            if isGoal(afterBoard):
-                break
-            afterPath = new_path[2]
+            afterPath = copy.deepcopy(new_path[2])
             afterPath.append('r')
+            if isGoal(afterBoard):
+                return afterPath, afterBoard
             open_list.append([new_start, afterBoard, afterPath])
-    return afterPath
 
 def bfs(boardArray):
-    path = bfs_find(boardArray)
-    return path
+    path, board = bfs_find(boardArray)
+    return path, board
 
 if __name__ == '__main__':
     boardArray = [['f', 'f', 's'],
