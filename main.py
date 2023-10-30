@@ -1,37 +1,54 @@
+import copy
 def isBlocked(boardArray, start, direction):
-    x, y = start[0], start[1]
+    x, y = start
     if direction == 'u':
         if boardArray[x - 1][y] == 'w':
             return True
-        if boardArray[x - 1][y] == 'b' and (x - 2 < 0 or boardArray[x - 2][y] == 'b'):
+        if boardArray[x - 1][y] == 'd':
             return True
-        if boardArray[x - 1][y] != 'b' or (x - 2 >= 0 and boardArray[x - 2][y] != 'b'):
-            return False
+        if boardArray[x - 1][y] == 'b' and (x - 2 < 0 or
+                                            boardArray[x - 2][y] == 'b' or
+                                            boardArray[x - 2][y] == 'd' or
+                                            boardArray[x - 2][y] == 'w'):
+            return True
+        return False
     elif direction == 'd':
         if boardArray[x + 1][y] == 'w':
             return True
-        if boardArray[x + 1][y] == 'b' and (x + 2 >= len(boardArray) or boardArray[x + 2][y] == 'b'):
+        if boardArray[x + 1][y] == 'd':
             return True
-        if boardArray[x + 1][y] != 'b' or (x + 2 < len(boardArray) and boardArray[x + 2][y] != 'b'):
-            return False
+        if boardArray[x + 1][y] == 'b' and (x + 2 >= len(boardArray) or
+                                            boardArray[x + 2][y] == 'b' or
+                                            boardArray[x + 2][y] == 'd' or
+                                            boardArray[x + 2][y] == 'w'):
+            return True
+        return False
     elif direction == 'l':
         if boardArray[x][y - 1] == 'w':
             return True
-        if boardArray[x][y - 1] == 'b' and (y - 2 < 0 or boardArray[x][y - 1] == 'b'):
+        if boardArray[x][y - 1] == 'd':
             return True
-        if boardArray[x][y - 1] != 'b' or (y - 2 >= 0 and boardArray[x][y - 1] != 'b'):
-            return False
+        if boardArray[x][y - 1] == 'b' and (y - 2 < 0 or
+                                            boardArray[x][y - 1] == 'b' or
+                                            boardArray[x][y - 1] == 'd' or
+                                            boardArray[x][y - 1] == 'w'):
+            return True
+        return False
     elif direction == 'r':
         if boardArray[x][y + 1] == 'w':
             return True
-        if boardArray[x][y + 1] == 'b' and (y + 2 >= len(boardArray[x]) or boardArray[x][y + 2] == 'b'):
+        if boardArray[x][y + 1] == 'd':
             return True
-        if boardArray[x][y + 1] != 'b' or (y + 2 < len(boardArray[x]) and boardArray[x][y + 2] != 'b'):
-            return False
+        if boardArray[x][y + 1] == 'b' and (y + 2 >= len(boardArray[x]) or
+                                            boardArray[x][y + 2] == 'b' or
+                                            boardArray[x][y + 2] == 'd' or
+                                            boardArray[x][y + 2] == 'w'):
+            return True
+        return False
 
 def getActions(boardArray, start):
         actions = []
-        x, y = start[0], start[1]
+        x, y = start
         if(x - 1 >= 0 and not isBlocked(boardArray, start, 'u')):
             actions.append('u')
         if(x + 1 < len(boardArray) and not isBlocked(boardArray, start, 'd')):
@@ -41,49 +58,120 @@ def getActions(boardArray, start):
         if(y + 1 < len(boardArray[x]) and not isBlocked(boardArray, start, 'r')):
             actions.append('r')
         return actions
+def isGoal(boardArray):
+    for i in range(len(boardArray)):
+        if 'b' in boardArray[i]:
+            return False
+    return True
+
+def updateBoard(start, boardArray, move):
+    newBoard = copy.deepcopy(boardArray)
+    x, y = start
+    if move == 'u':
+        if newBoard[x - 1][y] == 'b':
+            if newBoard[x - 2][y] == 's':
+                newBoard[x - 2][y] = 'd'
+            else:
+                newBoard[x - 2][y] = 'b'
+        elif newBoard[x - 1][y] == 's':
+            newBoard[x - 1][y] = 'as'
+        else:
+            newBoard[x - 1][y] = 'a'
+    elif move == 'd':
+        if newBoard[x + 1][y] == 'b':
+            if newBoard[x + 2][y] == 's':
+                newBoard[x + 2][y] = 'd'
+            else:
+                newBoard[x + 2][y] = 'b'
+        elif newBoard[x + 1][y] == 's':
+            newBoard[x + 1][y] = 'as'
+        else:
+            newBoard[x + 1][y] = 'a'
+    elif move == 'l':
+        if newBoard[x][y - 1] == 'b':
+            if newBoard[x][y - 2] == 's':
+                newBoard[x][y - 2] = 'd'
+            else:
+                newBoard[x][y - 2] = 'b'
+        elif newBoard[x][y - 1] == 's':
+            newBoard[x][y - 1] = 'as'
+        else:
+            newBoard[x][y - 1] = 'a'
+    elif move == 'r':
+        if newBoard[x][y + 1] == 'b':
+            if newBoard[x][y + 2] == 's':
+                newBoard[x][y + 2] = 'd'
+            else:
+                newBoard[x][y + 2] = 'b'
+        elif newBoard[x][y + 1] == 's':
+            newBoard[x][y + 1] = 'as'
+        else:
+            newBoard[x][y + 1] = 'a'
+    if newBoard[x][y] == 'as':
+        newBoard[x][y] = 's'
+    else:
+        newBoard[x][y] = 'f'
+    return newBoard
 
 def findStart(boardArray):
     for i in range(len(boardArray)):
         if 'a' in boardArray[i]:
             return i, boardArray[i].index('a')
-
+        elif 'a' in boardArray[i]:
+            return i, boardArray[i].index('a')
 
 def bfs_find(boardArray):
-    generalVisited = []
-    start_point = self.get_position()
-    x, y = start_point[0], start_point[1]
+    start = findStart(boardArray)
+    x, y = start
     open_list = []
-    open_list.append([start_point])
-    while not self.current_state[x][y].isGoal:
-        if start_point not in generalVisited:
-            generalVisited.append(start_point)
+    open_list.append([start, boardArray, []])
+    while True:
         new_path = open_list.pop(0)
-        start_point = new_path[len(new_path) - 1]
-        x, y = start_point[0], start_point[1]
-        actions = getActions(self.current_state, start_point)
+        start = new_path[0]
+        x, y = start
+        board = new_path[1]
+        actions = getActions(board, start)
         new_start = x - 1, y
-        if {'x':-1, 'y': 0} in actions and not new_start in  new_path:
-            open_list.append(new_path + [new_start])
+        if 'u' in actions:
+            afterBoard = updateBoard(start, board, 'u')
+            if isGoal(afterBoard):
+                break
+            afterPath = new_path[2]
+            afterPath.append('u')
+            open_list.append([new_start, afterBoard, afterPath])
         new_start = x + 1, y
-        if {'x':1, 'y': 0} in actions and not new_start in  new_path:
-            open_list.append(new_path + [new_start])
+        if 'd' in actions:
+            afterBoard = updateBoard(start, board, 'd')
+            if isGoal(afterBoard):
+                break
+            afterPath = new_path[2]
+            afterPath.append('d')
+            open_list.append([new_start, afterBoard, afterPath])
         new_start = x, y - 1
-        if {'x':0, 'y': -1} in actions and not new_start in  new_path:
-            open_list.append(new_path + [new_start])
+        if 'l' in actions:
+            afterBoard = updateBoard(start, board, 'l')
+            if isGoal(afterBoard):
+                break
+            afterPath = new_path[2]
+            afterPath.append('l')
+            open_list.append([new_start, afterBoard, afterPath])
         new_start = x, y + 1
-        if {'x':0, 'y': 1} in actions and not new_start in  new_path:
-            open_list.append(new_path + [new_start])
-    return generalVisited, new_path
+        if 'r' in actions:
+            afterBoard = updateBoard(start, board, 'r')
+            if isGoal(afterBoard):
+                break
+            afterPath = new_path[2]
+            afterPath.append('r')
+            open_list.append([new_start, afterBoard, afterPath])
+    return afterPath
 
 def bfs(boardArray):
-    start = findStart(boardArray)
-    visited, path = bfs_find(boardArray)
+    path = bfs_find(boardArray)
     return path
 
 if __name__ == '__main__':
-    boardArray = [['f', 'f', 'h'],
+    boardArray = [['f', 'f', 's'],
                   ['a', 'b', 'f'],
                   ['f', 'f', 'f'],
                 ]
-    start = findStart(boardArray)
-    print(getActions(boardArray, start))
+    print(bfs(boardArray))
