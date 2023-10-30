@@ -168,54 +168,62 @@ def bfs(boardArray):
     path, board = bfs_find(boardArray)
     return path, board
 
-def dfs_find(self):
+def dfs_find(boardArray, maxPathLength):
     start = findStart(boardArray)
     x, y = start
     open_list = []
-    open_list.append([start, boardArray, []])
+    open_list.append([start, boardArray, ['F']])
     while True:
         new_path = open_list.pop(len(open_list) - 1)
-        print(new_path[2])
         start = new_path[0]
         x, y = start
         board = new_path[1]
         actions = getActions(board, start)
         new_start = x - 1, y
-        if 'u' in actions:
+        afterPath = copy.deepcopy(new_path[2])
+        if 'u' in actions and (afterPath[len(afterPath) - 1] != 'd' or board[x - 1][y] == 'b'):
             afterBoard = updateBoard(start, board, 'u')
-            afterPath = copy.deepcopy(new_path[2])
             afterPath.append('u')
             if isGoal(afterBoard):
-                return afterPath, afterBoard
-            open_list.append([new_start, afterBoard, afterPath])
+                return afterPath[1:], afterBoard
+            if len(afterPath) < maxPathLength:
+                open_list.append([new_start, afterBoard, afterPath])
         new_start = x + 1, y
-        if 'd' in actions:
+        afterPath = copy.deepcopy(new_path[2])
+        if 'd' in actions and (afterPath[len(afterPath) - 1] != 'u' or board[x + 1][y] == 'b'):
             afterBoard = updateBoard(start, board, 'd')
-            afterPath = copy.deepcopy(new_path[2])
             afterPath.append('d')
             if isGoal(afterBoard):
-                return afterPath, afterBoard
-            open_list.append([new_start, afterBoard, afterPath])
+                return afterPath[1:], afterBoard
+            if len(afterPath) < maxPathLength:
+                open_list.append([new_start, afterBoard, afterPath])
         new_start = x, y - 1
-        if 'l' in actions:
+        afterPath = copy.deepcopy(new_path[2])
+        if 'l' in actions and (afterPath[len(afterPath) - 1] != 'r' or board[x][y - 1] == 'b'):
             afterBoard = updateBoard(start, board, 'l')
-            afterPath = copy.deepcopy(new_path[2])
             afterPath.append('l')
             if isGoal(afterBoard):
-                return afterPath, afterBoard
-            open_list.append([new_start, afterBoard, afterPath])
+                return afterPath[1:], afterBoard
+            if len(afterPath) < maxPathLength:
+                open_list.append([new_start, afterBoard, afterPath])
         new_start = x, y + 1
-        if 'r' in actions:
+        afterPath = copy.deepcopy(new_path[2])
+        if 'r' in actions and (afterPath[len(afterPath) - 1] != 'l' or board[x][y + 1] == 'b'):
             afterBoard = updateBoard(start, board, 'r')
-            afterPath = copy.deepcopy(new_path[2])
             afterPath.append('r')
             if isGoal(afterBoard):
-                return afterPath, afterBoard
-            open_list.append([new_start, afterBoard, afterPath])
+                return afterPath[1:], afterBoard
+            if len(afterPath) < maxPathLength:
+                open_list.append([new_start, afterBoard, afterPath])
 
 def dfs(boardArray):
-    path, board = dfs_find(boardArray)
-    return path, board
+    for i in range(1, 6):
+        try:
+            path, board = dfs_find(boardArray, i*10)
+            return path, board
+        except:
+            pass
+    return 'Stuck in an Infinite Loop'
 
 if __name__ == '__main__':
     boardArray = [['f', 'f', 's'],
