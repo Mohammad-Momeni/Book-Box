@@ -29,9 +29,9 @@ def isBlocked(boardArray, start, direction):
         if boardArray[x][y - 1] == 'd':
             return True
         if boardArray[x][y - 1] == 'b' and (y - 2 < 0 or
-                                            boardArray[x][y - 1] == 'b' or
-                                            boardArray[x][y - 1] == 'd' or
-                                            boardArray[x][y - 1] == 'w'):
+                                            boardArray[x][y - 2] == 'b' or
+                                            boardArray[x][y - 2] == 'd' or
+                                            boardArray[x][y - 2] == 'w'):
             return True
         return False
     elif direction == 'r':
@@ -73,7 +73,7 @@ def updateBoard(start, boardArray, move):
                 newBoard[x - 2][y] = 'd'
             else:
                 newBoard[x - 2][y] = 'b'
-        elif newBoard[x - 1][y] == 's':
+        if newBoard[x - 1][y] == 's':
             newBoard[x - 1][y] = 'as'
         else:
             newBoard[x - 1][y] = 'a'
@@ -83,7 +83,7 @@ def updateBoard(start, boardArray, move):
                 newBoard[x + 2][y] = 'd'
             else:
                 newBoard[x + 2][y] = 'b'
-        elif newBoard[x + 1][y] == 's':
+        if newBoard[x + 1][y] == 's':
             newBoard[x + 1][y] = 'as'
         else:
             newBoard[x + 1][y] = 'a'
@@ -93,7 +93,7 @@ def updateBoard(start, boardArray, move):
                 newBoard[x][y - 2] = 'd'
             else:
                 newBoard[x][y - 2] = 'b'
-        elif newBoard[x][y - 1] == 's':
+        if newBoard[x][y - 1] == 's':
             newBoard[x][y - 1] = 'as'
         else:
             newBoard[x][y - 1] = 'a'
@@ -103,7 +103,7 @@ def updateBoard(start, boardArray, move):
                 newBoard[x][y + 2] = 'd'
             else:
                 newBoard[x][y + 2] = 'b'
-        elif newBoard[x][y + 1] == 's':
+        if newBoard[x][y + 1] == 's':
             newBoard[x][y + 1] = 'as'
         else:
             newBoard[x][y + 1] = 'a'
@@ -136,7 +136,6 @@ def bfs_find(boardArray):
             afterBoard = updateBoard(start, board, 'u')
             afterPath = copy.deepcopy(new_path[2])
             afterPath.append('u')
-            print(afterBoard)
             if isGoal(afterBoard):
                 return afterPath, afterBoard
             open_list.append([new_start, afterBoard, afterPath])
