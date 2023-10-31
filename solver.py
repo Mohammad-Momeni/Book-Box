@@ -225,15 +225,29 @@ def dfs(boardArray):
             pass
     return 'Stuck in an Infinite Loop'
 
-def h_calculator():
+def h_calculator(board):
+    for i in range(len(board)):
+        for j in range(len(board[i])):
+            if board[i][j] == 'b':
+                if i == 0 or i == len(board) - 1:
+                    if j == 0 or j == len(board[i]) - 1:
+                        return 1000
+                    if 's' not in board[i]:
+                        return 1000
+                if j == 0:
+                    if 's' not in [row[j] for row in board]:
+                        return 1000
+                if j == len(board[i]) - 1:
+                    if 's' not in [row[j] for row in board]:
+                        return 1000
     return 0
 
 def star_find(boardArray):
     start = findStart(boardArray)
     x, y = start
     open_list = []
-    open_list.append([start, boardArray, 0, []])
-    while True:
+    open_list.append([start, boardArray, h_calculator(boardArray), []])
+    while len(open_list) > 0:
         least = 1000
         leastIndex = 0
         for i in range(len(open_list)):
@@ -245,6 +259,8 @@ def star_find(boardArray):
         x, y = start
         board = new_path[1]
         cost = new_path[2] + 1
+        if cost > 1000:
+            continue
         actions = getActions(board, start)
         new_start = x - 1, y
         if 'u' in actions:
@@ -253,7 +269,7 @@ def star_find(boardArray):
             afterPath.append('u')
             if isGoal(afterBoard):
                 return afterPath, afterBoard
-            open_list.append([new_start, afterBoard, cost + h_calculator(), afterPath])
+            open_list.append([new_start, afterBoard, cost + h_calculator(afterBoard), afterPath])
         new_start = x + 1, y
         if 'd' in actions:
             afterBoard = updateBoard(start, board, 'd')
@@ -261,7 +277,7 @@ def star_find(boardArray):
             afterPath.append('d')
             if isGoal(afterBoard):
                 return afterPath, afterBoard
-            open_list.append([new_start, afterBoard, cost + h_calculator(), afterPath])
+            open_list.append([new_start, afterBoard, cost + h_calculator(afterBoard), afterPath])
         new_start = x, y - 1
         if 'l' in actions:
             afterBoard = updateBoard(start, board, 'l')
@@ -269,7 +285,7 @@ def star_find(boardArray):
             afterPath.append('l')
             if isGoal(afterBoard):
                 return afterPath, afterBoard
-            open_list.append([new_start, afterBoard, cost + h_calculator(), afterPath])
+            open_list.append([new_start, afterBoard, cost + h_calculator(afterBoard), afterPath])
         new_start = x, y + 1
         if 'r' in actions:
             afterBoard = updateBoard(start, board, 'r')
@@ -277,17 +293,18 @@ def star_find(boardArray):
             afterPath.append('r')
             if isGoal(afterBoard):
                 return afterPath, afterBoard
-            open_list.append([new_start, afterBoard, cost + h_calculator(), afterPath])
+            open_list.append([new_start, afterBoard, cost + h_calculator(afterBoard), afterPath])
+    return 'Not Found', afterBoard
 
 def a_star(boardArray):
     path, board = bfs_find(boardArray)
     return path, board
 
 if __name__ == '__main__':
-    boardArray = [['f', 'f', 's'],
+    boardArray = [['s', 'f', 's'],
                   ['a', 'b', 'f'],
                   ['f', 'f', 'f'],
                 ]
-    print(bfs(boardArray)[0])
-    print(dfs(boardArray)[0])
+    # print(bfs(boardArray)[0])
+    # print(dfs(boardArray)[0])
     print(a_star(boardArray)[0])
