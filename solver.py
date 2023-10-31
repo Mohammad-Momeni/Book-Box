@@ -288,4 +288,6 @@ if __name__ == '__main__':
                   ['a', 'b', 'f'],
                   ['f', 'f', 'f'],
                 ]
-    print(a_star(boardArray))
+    print(bfs(boardArray)[0])
+    print(dfs(boardArray)[0])
+    print(a_star(boardArray)[0])
