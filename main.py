@@ -225,9 +225,67 @@ def dfs(boardArray):
             pass
     return 'Stuck in an Infinite Loop'
 
+def h_calculator():
+    return 0
+
+def star_find(boardArray):
+    start = findStart(boardArray)
+    x, y = start
+    open_list = []
+    open_list.append([start, boardArray, 0, []])
+    while True:
+        least = 1000
+        leastIndex = 0
+        for i in range(len(open_list)):
+            if open_list[i][2] < least:
+                leastIndex = i
+                least = open_list[i][2]
+        new_path = open_list.pop(leastIndex)
+        start = new_path[0]
+        x, y = start
+        board = new_path[1]
+        cost = new_path[2] + 1
+        actions = getActions(board, start)
+        new_start = x - 1, y
+        if 'u' in actions:
+            afterBoard = updateBoard(start, board, 'u')
+            afterPath = copy.deepcopy(new_path[3])
+            afterPath.append('u')
+            if isGoal(afterBoard):
+                return afterPath, afterBoard
+            open_list.append([new_start, afterBoard, cost + h_calculator(), afterPath])
+        new_start = x + 1, y
+        if 'd' in actions:
+            afterBoard = updateBoard(start, board, 'd')
+            afterPath = copy.deepcopy(new_path[3])
+            afterPath.append('d')
+            if isGoal(afterBoard):
+                return afterPath, afterBoard
+            open_list.append([new_start, afterBoard, cost + h_calculator(), afterPath])
+        new_start = x, y - 1
+        if 'l' in actions:
+            afterBoard = updateBoard(start, board, 'l')
+            afterPath = copy.deepcopy(new_path[3])
+            afterPath.append('l')
+            if isGoal(afterBoard):
+                return afterPath, afterBoard
+            open_list.append([new_start, afterBoard, cost + h_calculator(), afterPath])
+        new_start = x, y + 1
+        if 'r' in actions:
+            afterBoard = updateBoard(start, board, 'r')
+            afterPath = copy.deepcopy(new_path[3])
+            afterPath.append('r')
+            if isGoal(afterBoard):
+                return afterPath, afterBoard
+            open_list.append([new_start, afterBoard, cost + h_calculator(), afterPath])
+
+def a_star(boardArray):
+    path, board = bfs_find(boardArray)
+    return path, board
+
 if __name__ == '__main__':
     boardArray = [['f', 'f', 's'],
                   ['a', 'b', 'f'],
                   ['f', 'f', 'f'],
                 ]
-    print(dfs(boardArray))
+    print(a_star(boardArray))
