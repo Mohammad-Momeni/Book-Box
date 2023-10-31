@@ -301,7 +301,7 @@ def a_star(boardArray):
     return path, board
 
 if __name__ == '__main__':
-    boardArray = [['s', 'f', 's'],
+    boardArray = [['f', 'f', 's'],
                   ['a', 'b', 'f'],
                   ['f', 'f', 'f'],
                 ]
