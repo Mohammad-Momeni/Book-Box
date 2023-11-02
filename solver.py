@@ -225,19 +225,53 @@ def dfs(boardArray):
             pass
     return 'Stuck in an Infinite Loop'
 
+def isNMoveable(board, i, j, blockeds):
+    blocked1 = False
+    blocked2 = False
+    if (i > 0 and i < len(board) - 1):
+        if (board[i - 1][j] or board[i + 1][j]) in ['w']:
+            blocked1 = True
+        if board[i - 1][j] in ['b', 'd']:
+            if (i-1, j) not in blockeds:
+                blocked1 = isNMoveable(board, i-1, j, blockeds + [(i, j)])
+            else:
+                blocked1 = True
+        if board[i + 1][j] in ['b', 'd']:
+            if (i+1, j) not in blockeds:
+                blocked1 = isNMoveable(board, i+1, j, blockeds + [(i, j)])
+            else:
+                blocked1 = True
+    if (j > 0 and j < len(board[i]) - 1):
+        if (board[i][j - 1] or board[i][j + 1]) in ['w']:
+            blocked2 = True
+        if board[i][j - 1] in ['b', 'd']:
+            if (i, j-1) not in blockeds:
+                blocked2 = isNMoveable(board, i, j-1, blockeds + [(i, j)])
+            else:
+                blocked2 = True
+        if board[i][j + 1] in ['b', 'd']:
+            if (i, j+1) not in blockeds:
+                blocked2 = isNMoveable(board, i, j+1, blockeds + [(i, j)])
+            else:
+                blocked2 = True
+    return blocked1 and blocked2
+
 def h_calculator(board):
     for i in range(len(board)):
         for j in range(len(board[i])):
             if board[i][j] == 'b':
+                if isNMoveable(board, i, j, []):
+                    return 1000
                 if i == 0 or i == len(board) - 1:
                     if j == 0 or j == len(board[i]) - 1:
                         return 1000
+                    if (board[i][j - 1] or board[i][j + 1]) in ['b', 'w', 'd']:
+                        return 1000
                     if 's' not in board[i]:
                         return 1000
-                if j == 0:
-                    if 's' not in [row[j] for row in board]:
+                if j == 0 or j == len(board[i]) - 1:
+                    if (board[i - 1][j] or board[i + 1][j]) in ['b', 'w', 'd']:
                         return 1000
-                if j == len(board[i]) - 1:
                     if 's' not in [row[j] for row in board]:
                         return 1000
     return 0
@@ -246,7 +280,7 @@ def star_find(boardArray):
     start = findStart(boardArray)
     x, y = start
     open_list = []
-    open_list.append([start, boardArray, h_calculator(boardArray), []])
+    open_list.append([start, boardArray, h_calculator(boardArray), ['F']])
     while len(open_list) > 0:
         least = 1000
         leastIndex = 0
@@ -256,6 +290,7 @@ def star_find(boardArray):
                 least = open_list[i][2]
         new_path = open_list.pop(leastIndex)
         start = new_path[0]
+        print(new_path[3])
         x, y = start
         board = new_path[1]
         cost = new_path[2] + 1
@@ -263,48 +298,55 @@ def star_find(boardArray):
             continue
         actions = getActions(board, start)
         new_start = x - 1, y
-        if 'u' in actions:
+        afterPath = copy.deepcopy(new_path[3])
+        if 'u' in actions and (afterPath[len(afterPath) - 1] != 'd' or board[x - 1][y] == 'b'):
             afterBoard = updateBoard(start, board, 'u')
-            afterPath = copy.deepcopy(new_path[3])
             afterPath.append('u')
             if isGoal(afterBoard):
-                return afterPath, afterBoard
+                return afterPath[1:], afterBoard
             open_list.append([new_start, afterBoard, cost + h_calculator(afterBoard), afterPath])
         new_start = x + 1, y
-        if 'd' in actions:
+        afterPath = copy.deepcopy(new_path[3])
+        if 'd' in actions and (afterPath[len(afterPath) - 1] != 'u' or board[x + 1][y] == 'b'):
             afterBoard = updateBoard(start, board, 'd')
-            afterPath = copy.deepcopy(new_path[3])
             afterPath.append('d')
             if isGoal(afterBoard):
-                return afterPath, afterBoard
+                return afterPath[1:], afterBoard
             open_list.append([new_start, afterBoard, cost + h_calculator(afterBoard), afterPath])
         new_start = x, y - 1
-        if 'l' in actions:
+        afterPath = copy.deepcopy(new_path[3])
+        if 'l' in actions and (afterPath[len(afterPath) - 1] != 'r' or board[x][y - 1] == 'b'):
             afterBoard = updateBoard(start, board, 'l')
-            afterPath = copy.deepcopy(new_path[3])
             afterPath.append('l')
             if isGoal(afterBoard):
-                return afterPath, afterBoard
+                return afterPath[1:], afterBoard
             open_list.append([new_start, afterBoard, cost + h_calculator(afterBoard), afterPath])
         new_start = x, y + 1
-        if 'r' in actions:
+        afterPath = copy.deepcopy(new_path[3])
+        if 'r' in actions and (afterPath[len(afterPath) - 1] != 'l' or board[x][y + 1] == 'b'):
             afterBoard = updateBoard(start, board, 'r')
-            afterPath = copy.deepcopy(new_path[3])
             afterPath.append('r')
             if isGoal(afterBoard):
-                return afterPath, afterBoard
+                return afterPath[1:], afterBoard
             open_list.append([new_start, afterBoard, cost + h_calculator(afterBoard), afterPath])
     return 'Not Found', afterBoard
 
 def a_star(boardArray):
-    path, board = bfs_find(boardArray)
+    path, board = star_find(boardArray)
     return path, board
 
 if __name__ == '__main__':
-    boardArray = [['f', 'f', 's'],
-                  ['a', 'b', 'f'],
-                  ['f', 'f', 'f'],
-                ]
+    boardArray = [['f', 'f', 'f', 'f', 'w', 'w', 'w', 'w', 'w', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f'],
+                  ['f', 'f', 'f', 'f', 'w', 'f', 'f', 'f', 'w', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f'],
+                  ['f', 'f', 'f', 'f', 'w', 'b', 'f', 'f', 'w', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f'],
+                  ['f', 'f', 'w', 'w', 'w', 'f', 'f', 'b', 'w', 'w', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f'],
+                  ['f', 'f', 'w', 'f', 'f', 'b', 'f', 'b', 'f', 'w', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f'],
+                  ['w', 'w', 'w', 'f', 'w', 'f', 'w', 'w', 'f', 'w', 'f', 'f', 'f', 'w', 'w', 'w', 'w', 'w', 'w'],
+                  ['w', 'f', 'f', 'f', 'w', 'f', 'w', 'w', 'f', 'w', 'w', 'w', 'w', 'w', 'f', 'f', 's', 's', 'w'],
+                  ['w', 'f', 'b', 'f', 'f', 'b', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 's', 's', 'w'],
+                  ['w', 'w', 'w', 'w', 'w', 'f', 'w', 'w', 'w', 'f', 'w', 'a', 'w', 'w', 'f', 'f', 's', 's', 'w'],
+                  ['f', 'f', 'f', 'f', 'w', 'f', 'f', 'f', 'f', 'f', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'w'],
+                  ['f', 'f', 'f', 'f', 'w', 'w', 'w', 'w', 'w', 'w', 'w', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f']]
     # print(bfs(boardArray)[0])
     # print(dfs(boardArray)[0])
     print(a_star(boardArray)[0])
