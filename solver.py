@@ -231,12 +231,12 @@ def isNMoveable(board, i, j, blockeds):
     if (i > 0 and i < len(board) - 1):
         if (board[i - 1][j] or board[i + 1][j]) in ['w']:
             blocked1 = True
-        if board[i - 1][j] in ['b', 'd']:
+        elif board[i - 1][j] in ['b', 'd']:
             if (i-1, j) not in blockeds:
                 blocked1 = isNMoveable(board, i-1, j, blockeds + [(i, j)])
             else:
                 blocked1 = True
-        if board[i + 1][j] in ['b', 'd']:
+        elif board[i + 1][j] in ['b', 'd']:
             if (i+1, j) not in blockeds:
                 blocked1 = isNMoveable(board, i+1, j, blockeds + [(i, j)])
             else:
@@ -244,43 +244,47 @@ def isNMoveable(board, i, j, blockeds):
     if (j > 0 and j < len(board[i]) - 1):
         if (board[i][j - 1] or board[i][j + 1]) in ['w']:
             blocked2 = True
-        if board[i][j - 1] in ['b', 'd']:
+        elif board[i][j - 1] in ['b', 'd']:
             if (i, j-1) not in blockeds:
                 blocked2 = isNMoveable(board, i, j-1, blockeds + [(i, j)])
             else:
                 blocked2 = True
-        if board[i][j + 1] in ['b', 'd']:
+        elif board[i][j + 1] in ['b', 'd']:
             if (i, j+1) not in blockeds:
                 blocked2 = isNMoveable(board, i, j+1, blockeds + [(i, j)])
             else:
                 blocked2 = True
     return blocked1 and blocked2
 
-def h_calculator(board):
+def h_calculator(board, start):
+    totalH = 0
+    distances = []
+    x, y = start
     for i in range(len(board)):
         for j in range(len(board[i])):
             if board[i][j] == 'b':
+                distances.append((x-i)**2 + (y-j)**2)
                 if isNMoveable(board, i, j, []):
-                    return 1000
+                    totalH += 1000
                 if i == 0 or i == len(board) - 1:
                     if j == 0 or j == len(board[i]) - 1:
-                        return 1000
+                        totalH += 1000
                     if (board[i][j - 1] or board[i][j + 1]) in ['b', 'w', 'd']:
-                        return 1000
+                        totalH += 1000
                     if 's' not in board[i]:
-                        return 1000
+                        totalH += 1000
                 if j == 0 or j == len(board[i]) - 1:
                     if (board[i - 1][j] or board[i + 1][j]) in ['b', 'w', 'd']:
-                        return 1000
+                        totalH += 1000
                     if 's' not in [row[j] for row in board]:
-                        return 1000
-    return 0
+                        totalH += 1000
+    return totalH + min(distances)
 
 def star_find(boardArray):
     start = findStart(boardArray)
     x, y = start
     open_list = []
-    open_list.append([start, boardArray, h_calculator(boardArray), ['F']])
+    open_list.append([start, boardArray, h_calculator(boardArray, start), ['F']])
     while len(open_list) > 0:
         least = 1000
         leastIndex = 0
@@ -304,7 +308,7 @@ def star_find(boardArray):
             afterPath.append('u')
             if isGoal(afterBoard):
                 return afterPath[1:], afterBoard
-            open_list.append([new_start, afterBoard, cost + h_calculator(afterBoard), afterPath])
+            open_list.append([new_start, afterBoard, cost + h_calculator(afterBoard, new_start), afterPath])
         new_start = x + 1, y
         afterPath = copy.deepcopy(new_path[3])
         if 'd' in actions and (afterPath[len(afterPath) - 1] != 'u' or board[x + 1][y] == 'b'):
@@ -312,7 +316,7 @@ def star_find(boardArray):
             afterPath.append('d')
             if isGoal(afterBoard):
                 return afterPath[1:], afterBoard
-            open_list.append([new_start, afterBoard, cost + h_calculator(afterBoard), afterPath])
+            open_list.append([new_start, afterBoard, cost + h_calculator(afterBoard, new_start), afterPath])
         new_start = x, y - 1
         afterPath = copy.deepcopy(new_path[3])
         if 'l' in actions and (afterPath[len(afterPath) - 1] != 'r' or board[x][y - 1] == 'b'):
@@ -320,7 +324,7 @@ def star_find(boardArray):
             afterPath.append('l')
             if isGoal(afterBoard):
                 return afterPath[1:], afterBoard
-            open_list.append([new_start, afterBoard, cost + h_calculator(afterBoard), afterPath])
+            open_list.append([new_start, afterBoard, cost + h_calculator(afterBoard, new_start), afterPath])
         new_start = x, y + 1
         afterPath = copy.deepcopy(new_path[3])
         if 'r' in actions and (afterPath[len(afterPath) - 1] != 'l' or board[x][y + 1] == 'b'):
@@ -328,7 +332,7 @@ def star_find(boardArray):
             afterPath.append('r')
             if isGoal(afterBoard):
                 return afterPath[1:], afterBoard
-            open_list.append([new_start, afterBoard, cost + h_calculator(afterBoard), afterPath])
+            open_list.append([new_start, afterBoard, cost + h_calculator(afterBoard, new_start), afterPath])
     return 'Not Found', afterBoard
 
 def a_star(boardArray):
